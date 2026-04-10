@@ -1,0 +1,275 @@
+<ion-header class="ion-no-border shadow-sm">
+  <ion-toolbar class="px-4">
+    <!-- Left: Avatar + greeting -->
+    <div class="flex items-center gap-3" slot="start">
+      <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-dark
+                  flex items-center justify-center shadow-card text-white font-black text-sm">
+        ME
+      </div>
+      <div class="flex flex-col leading-tight">
+        <span class="text-xs font-semibold text-ink-muted">{{ greeting() }}</span>
+        <span class="text-base font-black text-ink">Mika 👋</span>
+      </div>
+    </div>
+
+    <!-- Right: XP + streak badges -->
+    <div class="flex items-center gap-3" slot="end">
+      <!-- XP badge -->
+      <div class="flex items-center gap-1 bg-primary-muted rounded-pill px-3 py-1.5 shadow-sm">
+        <ion-icon name="trophy-outline" class="text-primary text-sm"></ion-icon>
+        <span class="text-xs font-black text-primary-dark">
+          {{ habitService.totalXp() | number }} XP
+        </span>
+      </div>
+
+      <!-- Streak badge -->
+      <div class="flex items-center gap-1 bg-accent-orange/15 rounded-pill px-3 py-1.5 shadow-sm">
+        <ion-icon name="flame-outline" class="text-streak text-sm"></ion-icon>
+        <span class="text-xs font-black text-streak">
+          {{ habitService.habits()[0]?.streak ?? 0 }}
+        </span>
+      </div>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <!-- ── Pull to refresh ─────────────────────────────────────────── -->
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content pullingText="Pull to refresh" refreshingSpinner="crescent">
+    </ion-refresher-content>
+  </ion-refresher>
+
+  <div class="px-4 pb-28 pt-2 min-h-full">
+
+    <!-- ── Progress ring + summary ──────────────────────────────── -->
+    <div class="mt-4 mb-6 flex items-center gap-5
+                bg-white rounded-3xl p-5 shadow-card border border-surface-border">
+
+      <!-- SVG donut progress ring -->
+      <div class="relative w-20 h-20 flex-shrink-0">
+        <svg viewBox="0 0 36 36" class="w-full h-full -rotate-90">
+          <!-- Background track -->
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#E5E5E5" stroke-width="3.5" />
+          <!-- Progress arc -->
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#58CC02" stroke-width="3.5" stroke-linecap="round"
+            [attr.stroke-dasharray]="habitService.progressPercent() + ', 100'"
+            class="transition-all duration-700 ease-out" />
+        </svg>
+        <!-- Center label -->
+        <div class="absolute inset-0 flex items-center justify-center
+                    flex-col leading-none rotate-0">
+          <span class="text-lg font-black text-ink">
+            {{ habitService.progressPercent() }}%
+          </span>
+        </div>
+      </div>
+
+      <!-- Text summary -->
+      <div class="flex flex-col gap-1">
+        <h1 class="text-xl font-black text-ink leading-tight">
+          Daily Journey
+        </h1>
+        <p class="text-sm font-semibold text-ink-muted">
+          {{ habitService.completedCount() }} / {{ habitService.totalCount() }}
+          habits done
+        </p>
+
+        <!-- All done celebration -->
+        @if (habitService.allDone() && habitService.totalCount() > 0) {
+        <div class="mt-1 flex items-center gap-1.5 animate-bounce-in">
+          <ion-icon name="sparkles-outline" class="text-streak text-base"></ion-icon>
+          <span class="text-sm font-black text-streak">All done! Amazing! 🎉</span>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- ── Section title ─────────────────────────────────────────── -->
+    <h2 class="text-base font-black text-ink-muted uppercase tracking-widest mb-3 px-1">
+      Today's Habits
+    </h2>
+
+    <!-- ── Loading skeletons ─────────────────────────────────────── -->
+    @if (habitService.isLoading()) {
+    <div class="flex flex-col gap-3">
+      @for (i of [1,2,3]; track i) {
+      <div class="skeleton h-24 w-full"></div>
+      }
+    </div>
+    }
+
+    <!-- ── Error state ───────────────────────────────────────────── -->
+    @if (habitService.error()) {
+    <div class="rounded-2xl bg-accent-red/10 border border-accent-red/30
+                  p-4 flex items-center gap-3">
+      <div
+        class="w-8 h-8 rounded-full bg-accent-red flex items-center justify-center text-white font-black text-lg flex-shrink-0">
+        !</div>
+      <p class="text-sm font-semibold text-accent-red">
+        {{ habitService.error() }}
+      </p>
+    </div>
+    }
+
+    <!-- ── Empty state ───────────────────────────────────────────── -->
+    @if (!habitService.isLoading() && habitService.totalCount() === 0) {
+    <div class="flex flex-col items-center justify-center gap-4 py-16
+                  text-center animate-slide-up">
+      <div class="text-6xl">🌱</div>
+      <h2 class="text-xl font-black text-ink">No habits yet!</h2>
+      <p class="text-sm font-semibold text-ink-muted max-w-xs">
+        Add your first habit and start building your daily journey.
+      </p>
+      <button (click)="openAddModal()" class="mt-2 bg-primary text-white font-black rounded-pill
+                       px-8 py-3 btn-press shadow-btn text-base">
+        + Add First Habit
+      </button>
+    </div>
+    }
+
+    <!-- ── Habit cards list ──────────────────────────────────────── -->
+    @if (!habitService.isLoading()) {
+    <div class="flex flex-col gap-3">
+      @for (item of habitService.todayJourney(); track trackById($index, item)) {
+
+      <!-- "NEXT UP" connector label -->
+      @if (item.isNext && $index > 0) {
+      <div class="flex items-center gap-2 py-1 animate-slide-up">
+        <div class="h-0.5 flex-1 bg-gradient-to-r from-transparent to-primary/30"></div>
+        <span class="text-xs font-black text-primary-dark bg-primary-muted
+                           rounded-pill px-3 py-1">↓ NEXT UP</span>
+        <div class="h-0.5 flex-1 bg-gradient-to-l from-transparent to-primary/30"></div>
+      </div>
+      }
+
+      <!-- ── Habit card ──────────────────────────────────────── -->
+      <div id="habit-card-{{ item.habit.id }}" (click)="onHabitTap(item)" class="relative rounded-2xl border-2 p-4 transition-all
+                   duration-300 cursor-pointer animate-slide-up
+                   {{ cardBorderClass(item) }}" [class.ring-2]="item.isNext" [class.ring-primary]="item.isNext">
+
+        <!-- "NEXT" beacon pulse -->
+        @if (item.isNext && item.log?.status !== 'completed') {
+        <div class="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full
+                          bg-primary animate-pulse-ring">
+        </div>
+        <div class="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-primary"></div>
+        }
+
+        <div class="flex items-center gap-4">
+
+          <!-- Category icon bubble -->
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center
+                          text-2xl flex-shrink-0 shadow-sm
+                          {{ categoryTheme[item.habit.category].bg }}">
+            {{ item.habit.icon ?? categoryTheme[item.habit.category].icon }}
+          </div>
+
+          <!-- Text block -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <h3 class="text-base font-black text-ink leading-tight truncate">
+                {{ item.habit.name }}
+              </h3>
+              <!-- streak badge -->
+              @if (item.habit.streak > 0) {
+              <span class="flex items-center gap-0.5 text-xs font-black
+                                 text-streak bg-streak/10 rounded-pill px-2 py-0.5
+                                 flex-shrink-0">
+                🔥 {{ item.habit.streak }}
+              </span>
+              }
+            </div>
+
+            <!-- Scheduled time + duration -->
+            <div class="flex items-center gap-1 mt-0.5">
+              <ion-icon name="time-outline" class="text-ink-light text-xs flex-shrink-0">
+              </ion-icon>
+              <span class="text-xs font-semibold text-ink-muted">
+                {{ item.habit.scheduledTime }}
+                · {{ item.habit.durationMinutes }} min
+              </span>
+            </div>
+
+            <!-- In-progress timer -->
+            @if (item.log?.status === 'in_progress') {
+            <div class="flex items-center gap-1 mt-1">
+              <div class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
+              <span class="text-xs font-black text-primary">
+                In progress · {{ elapsedLabel(item) }}
+              </span>
+            </div>
+            }
+
+            <!-- Completed checkmark indicator -->
+            @if (item.log?.status === 'completed') {
+            <div class="flex items-center gap-1 mt-1">
+              <ion-icon name="checkmark-circle" class="text-primary text-sm">
+              </ion-icon>
+              <span class="text-xs font-black text-primary-dark">
+                +{{ item.habit.xpReward }} XP earned
+              </span>
+            </div>
+            }
+          </div>
+
+          <!-- Action button -->
+          <div class="flex flex-col items-end gap-2 flex-shrink-0">
+            <button id="action-btn-{{ item.habit.id }}" (click)="onHabitTap(item); $event.stopPropagation()" class="text-sm font-black rounded-pill px-4 py-2
+                         transition-all duration-150
+                         {{ actionBtnClass(item) }}"
+              [disabled]="item.log?.status === 'completed' || item.log?.status === 'skipped'">
+              {{ actionLabel(item) }}
+            </button>
+
+            <!-- Skip button (only for pending/upcoming) -->
+            @if (!item.log || item.log.status === 'pending') {
+            <button id="skip-btn-{{ item.habit.id }}" (click)="onSkip(item, $event)" class="text-xs font-semibold text-ink-light underline
+                           underline-offset-2 px-1">
+              skip
+            </button>
+            }
+          </div>
+
+        </div><!-- end flex row -->
+
+        <!-- In-progress progress bar -->
+        @if (item.log?.status === 'in_progress') {
+        <div class="mt-3 h-1.5 rounded-full bg-surface-border overflow-hidden">
+          <div class="h-full bg-primary rounded-full w-1/3
+                            animate-pulse origin-left transition-all duration-1000">
+          </div>
+        </div>
+        }
+
+      </div><!-- end habit card -->
+
+      }
+    </div><!-- end list -->
+    }
+
+  </div><!-- end scrollable content -->
+
+  <!-- ── Add Habit FAB ─────────────────────────────────────────────── -->
+  @if (habitService.totalCount() > 0) {
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button id="fab-add-habit" (click)="openAddModal()" class="shadow-card-lg">
+      <ion-icon name="add-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+  }
+
+  <!-- ── Add Habit Modal ───────────────────────────────────────────── -->
+  <ion-modal [isOpen]="isModalOpen()" (didDismiss)="closeModal()" [backdropDismiss]="true">
+    <ng-template>
+      <app-add-habit-modal (dismissed)="closeModal()"></app-add-habit-modal>
+    </ng-template>
+  </ion-modal>
+
+  <!-- ── XP Toast ──────────────────────────────────────────────────── -->
+  <ion-toast [isOpen]="toastOpen()" [message]="toastMsg()" [duration]="3000" position="top" color="success"
+    class="font-bold">
+  </ion-toast>
+
+</ion-content>

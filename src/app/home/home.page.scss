@@ -1,0 +1,43 @@
+// Home page component-scoped styles
+// Most styling is in Tailwind utility classes; this file handles
+// things that Tailwind can't express inline.
+
+:host {
+  display: block;
+}
+
+// Custom ion-toolbar padding for safe area
+ion-toolbar {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+// FAB custom colour
+ion-fab-button {
+  --background: #58CC02;
+  --background-hover: #46A302;
+  --background-activated: #46A302;
+  --color: #ffffff;
+  --box-shadow: 0 4px 16px rgba(88, 204, 2, 0.45);
+  width: 56px;
+  height: 56px;
+}
+
+// Modal handle bar
+ion-modal {
+  --border-radius: 24px 24px 0 0;
+}
+
+// Animate habit cards in staggered fashion
+.animate-slide-up {
+  @for $i from 1 through 10 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{($i - 1) * 60}ms;
+    }
+  }
+}
+
+// Progress ring stroke transition hint
+circle[stroke="#58CC02"] {
+  transition: stroke-dasharray 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}

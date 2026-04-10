@@ -1,0 +1,147 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="px-4 pt-2">
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()" fill="clear" class="text-ink-muted font-bold">
+        Cancel
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="text-center font-black text-ink text-lg">
+      New Habit ✨
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button id="save-habit-btn" (click)="save()" fill="clear" [disabled]="isSaving()"
+        class="font-black text-primary">
+        @if (isSaving()) {
+        <ion-spinner name="crescent" class="w-5 h-5"></ion-spinner>
+        } @else {
+        Save
+        }
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="flex flex-col gap-6 pb-8">
+
+    <!-- ── Name ────────────────────────────────────────────────────── -->
+    <div class="flex flex-col gap-1.5">
+      <label class="text-xs font-black uppercase tracking-widest text-ink-muted px-1">
+        Habit Name *
+      </label>
+      <div class="bg-white rounded-2xl border-2 border-surface-border
+                  focus-within:border-primary transition-colors shadow-sm px-4 py-2">
+        <ion-input id="habit-name-input" [value]="name()" (ionInput)="onNameChange($event)"
+          placeholder="e.g. Morning Run" class="font-bold text-ink" [clearInput]="true">
+        </ion-input>
+      </div>
+    </div>
+
+    <!-- ── Description ──────────────────────────────────────────────── -->
+    <div class="flex flex-col gap-1.5">
+      <label class="text-xs font-black uppercase tracking-widest text-ink-muted px-1">
+        Description (optional)
+      </label>
+      <div class="bg-white rounded-2xl border-2 border-surface-border
+                  focus-within:border-primary transition-colors shadow-sm px-4 py-2">
+        <ion-textarea id="habit-desc-input" [value]="description()" (ionInput)="onDescChange($event)"
+          placeholder="What does this habit involve?" :auto-grow="true" class="font-semibold text-ink">
+        </ion-textarea>
+      </div>
+    </div>
+
+    <!-- ── Category chips ───────────────────────────────────────────── -->
+    <div class="flex flex-col gap-2">
+      <label class="text-xs font-black uppercase tracking-widest text-ink-muted px-1">
+        Category
+      </label>
+      <div class="flex flex-wrap gap-2">
+        @for (cat of categories; track cat.value) {
+        <button id="cat-btn-{{ cat.value }}" (click)="setCategory(cat.value)" class="rounded-pill px-4 py-2 text-sm font-bold border-2
+                   transition-all duration-200 btn-press
+                   {{ category() === cat.value
+                     ? 'border-primary bg-primary-muted text-primary-dark shadow-sm'
+                     : 'border-surface-border bg-white text-ink-muted' }}">
+          {{ cat.label }}
+        </button>
+        }
+      </div>
+    </div>
+
+    <!-- ── Scheduled Time ────────────────────────────────────────────── -->
+    <div class="flex flex-col gap-1.5">
+      <label class="text-xs font-black uppercase tracking-widest text-ink-muted px-1">
+        Scheduled Time *
+      </label>
+      <div class="bg-white rounded-2xl border-2 border-surface-border
+                  focus-within:border-primary transition-colors shadow-sm px-4 py-2">
+        <ion-input id="habit-time-input" type="time" [value]="scheduledTime()" (ionChange)="onTimeChange($event)"
+          class="font-bold text-ink text-lg">
+        </ion-input>
+      </div>
+    </div>
+
+    <!-- ── Duration chips ───────────────────────────────────────────── -->
+    <div class="flex flex-col gap-2">
+      <label class="text-xs font-black uppercase tracking-widest text-ink-muted px-1">
+        Duration
+      </label>
+      <div class="flex flex-wrap gap-2">
+        @for (d of durationOptions; track d) {
+        <button id="duration-btn-{{ d }}" (click)="setDuration(d)" class="rounded-pill px-4 py-2 text-sm font-bold border-2
+                   transition-all duration-200 btn-press
+                   {{ durationMinutes() === d
+                     ? 'border-primary bg-primary-muted text-primary-dark shadow-sm'
+                     : 'border-surface-border bg-white text-ink-muted' }}">
+          {{ d }} min
+        </button>
+        }
+      </div>
+    </div>
+
+    <!-- ── XP reward ─────────────────────────────────────────────────── -->
+    <div class="flex flex-col gap-2">
+      <label class="text-xs font-black uppercase tracking-widest text-ink-muted px-1">
+        XP Reward 🏆
+      </label>
+      <div class="flex flex-wrap gap-2">
+        @for (xp of xpOptions; track xp) {
+        <button id="xp-btn-{{ xp }}" (click)="setXp(xp)" class="rounded-pill px-4 py-2 text-sm font-bold border-2
+                   transition-all duration-200 btn-press
+                   {{ selectedXp() === xp
+                     ? 'border-primary bg-primary-muted text-primary-dark shadow-sm'
+                     : 'border-surface-border bg-white text-ink-muted' }}">
+          +{{ xp }} XP
+        </button>
+        }
+      </div>
+    </div>
+
+    <!-- ── Validation error ──────────────────────────────────────────── -->
+    @if (validationError()) {
+    <div class="rounded-2xl bg-accent-red/10 border border-accent-red/40
+                  px-4 py-3 flex items-center gap-3 animate-slide-up">
+      <div
+        class="w-6 h-6 rounded-full bg-accent-red flex items-center justify-center text-white font-black text-sm flex-shrink-0">
+        !</div>
+      <p class="text-sm font-semibold text-accent-red">{{ validationError() }}</p>
+    </div>
+    }
+
+    <!-- ── Save button ───────────────────────────────────────────────── -->
+    <button id="save-habit-bottom-btn" (click)="save()" [disabled]="isSaving()" class="w-full bg-primary text-white font-black text-lg
+             rounded-pill py-4 btn-press shadow-btn
+             disabled:opacity-60 disabled:cursor-not-allowed
+             transition-all duration-150 mt-2">
+      @if (isSaving()) {
+      <span class="flex items-center justify-center gap-2">
+        <ion-spinner name="crescent" class="w-5 h-5 text-white"></ion-spinner>
+        Saving...
+      </span>
+      } @else {
+      + Add Habit
+      }
+    </button>
+
+  </div>
+</ion-content>

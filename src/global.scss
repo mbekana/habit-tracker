@@ -1,0 +1,158 @@
+/* Core CSS required for Ionic components to work properly */
+@import "@ionic/angular/css/core.css";
+
+/* Basic CSS for apps built with Ionic */
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+
+/* Optional CSS utils that can be commented out */
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+@import "@ionic/angular/css/display.css";
+
+/**
+ * Ionic Dark Mode
+ * -----------------------------------------------------
+ * For more info, please see:
+ * https://ionicframework.com/docs/theming/dark-mode
+ */
+
+/* @import "@ionic/angular/css/palettes/dark.always.css"; */
+/* @import "@ionic/angular/css/palettes/dark.class.css"; */
+/* Import Google Fonts — Nunito (Duolingo-style rounded font) */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
+
+/* Tailwind directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Ionic global overrides ─────────────────────────────────────── */
+:root {
+  --ion-font-family: 'Nunito', sans-serif;
+  --ion-background-color: #F7F7F7;
+  --ion-text-color: #1F1F1F;
+
+  /* Ionic palette → mapped to our design tokens */
+  --ion-color-primary: #58CC02;
+  --ion-color-primary-rgb: 88, 204, 2;
+  --ion-color-primary-shade: #46A302;
+  --ion-color-primary-tint: #89E219;
+
+  --ion-color-secondary: #1CB0F6;
+  --ion-color-secondary-rgb: 28, 176, 246;
+  --ion-color-secondary-shade: #169cd8;
+  --ion-color-secondary-tint: #33b8f7;
+
+  --ion-color-danger: #FF4B4B;
+  --ion-color-warning: #FF9600;
+  --ion-color-success: #58CC02;
+
+  --ion-toolbar-background: #FFFFFF;
+  --ion-toolbar-color: #1F1F1F;
+
+  --ion-safe-area-top: env(safe-area-inset-top);
+  --ion-safe-area-bottom: env(safe-area-inset-bottom);
+}
+
+/* ── Base typographic reset ───────────────────────────────────────── */
+* {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+ion-content {
+  --background: #F7F7F7;
+}
+
+ion-header ion-toolbar {
+  --background: #ffffff;
+  --border-color: #E5E5E5;
+}
+
+/* ── Utility: press-down effect on interactive elements ───────────── */
+.btn-press {
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.18);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+
+  &:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.18);
+  }
+}
+
+/* ── Utility: shimmer loading skeleton ────────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg,
+      #e8e8e8 25%,
+      #f5f5f5 50%,
+      #e8e8e8 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.8s linear infinite;
+  border-radius: 0.75rem;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* ── XP pop-in animation ──────────────────────────────────────────── */
+@keyframes xp-pop {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+
+  60% {
+    transform: translateY(-30px) scale(1.2);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(-50px) scale(0.9);
+    opacity: 0;
+  }
+}
+
+.xp-pop {
+  animation: xp-pop 0.8s ease-out forwards;
+}
+
+/* ── Confetti burst ───────────────────────────────────────────────── */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-20px) rotate(0deg);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(90px) rotate(360deg);
+    opacity: 0;
+  }
+}
+/* Forcing light mode explicitly */
+:root {
+  color-scheme: light;
+}
+body {
+  background-color: #F7F7F7 !important;
+  color: #1F1F1F !important;
+}
+ion-content {
+  --background: #F7F7F7 !important;
+}
