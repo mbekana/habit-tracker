@@ -33,12 +33,12 @@ jobs:
       - name: Build Xcode Project (Unsigned)
         run: |
           cd ios/App
-          xcodebuild build \
+          xcodebuild archive \
             -project App.xcodeproj \
             -scheme App \
             -configuration Release \
             -sdk iphoneos \
-            -destination "generic/platform=iOS" \
+            -archivePath ../../App.xcarchive \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO
@@ -46,9 +46,9 @@ jobs:
       - name: Package into .ipa
         run: |
           mkdir -p Payload
-          mv ios/App/build/Release-iphoneos/App.app Payload/
+          mv App.xcarchive/Products/Applications/*.app Payload/
           zip -r habit-tracker.ipa Payload
-          rm -rf Payload
+          rm -rf Payload App.xcarchive
 
       - name: Upload .ipa Artifact
         uses: actions/upload-artifact@v4
